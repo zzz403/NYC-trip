@@ -29,6 +29,37 @@ function PanTo({ id }) {
   return null
 }
 
+// 做旧叠层：作为地图内部的低层 pane，压在瓦片(z200)之上、路线(z400)与图钉(z600)之下。
+// 这样只有瓦片被做旧，路线和图钉始终鲜亮；叠层随地图一起平移缩放，覆盖始终正确。
+const WORLD = [
+  [-85.05, -180],
+  [85.05, 180],
+]
+function VintagePanes() {
+  const map = useMap()
+  useEffect(() => {
+    if (map.getPane('vintageDesat')) return
+    // 降饱和：灰色 + saturation 混合，得到旧地图的褪色感
+    const desat = map.createPane('vintageDesat')
+    desat.style.zIndex = 250
+    desat.style.pointerEvents = 'none'
+    desat.style.mixBlendMode = 'saturation'
+    // 暖色相乘：压成泛黄旧纸，但保持整体明亮
+    const warm = map.createPane('vintageWarm')
+    warm.style.zIndex = 251
+    warm.style.pointerEvents = 'none'
+    warm.style.mixBlendMode = 'multiply'
+
+    // 给这两层做旧矩形各自一个"超大 padding"的渲染器：SVG 覆盖远超视口的范围，
+    // 平移时不会触发重新裁剪/重绘，因此混合层不会在移动时闪烁（行程都在 NYC 小范围内，足够）。
+    const desatRenderer = L.svg({ pane: 'vintageDesat', padding: 5 })
+    const warmRenderer = L.svg({ pane: 'vintageWarm', padding: 5 })
+
+    L.rectangle(WORLD, { renderer: desatRenderer, stroke: false, fillColor: '#8a8a8a', fillOpacity: 0.32, interactive: false }).addTo(map)
+    L.rectangle(WORLD, { renderer: warmRenderer, stroke: false, fillColor: '#e0b978', fillOpacity: 0.46, interactive: false }).addTo(map)
+  }, [map])
+  return null
+}
 
 export default function MapView({ visibleDays, activeDay, selectedId, onSelect }) {
   // 每天的路线 = 酒店 → 各站 → 酒店
@@ -57,15 +88,14 @@ export default function MapView({ visibleDays, activeDay, selectedId, onSelect }
       scrollWheelZoom
       className="leaflet-canvas"
     >
-      {/* 做旧滤镜只加在瓦片图层上（marker/路线在各自图层，图钉与路线始终鲜亮）。
-          纯 filter、无 mix-blend-mode，因此平移不会闪；will-change 提升为 GPU 合成层，缩放流畅。 */}
+      {/* 普通 Voyager 瓦片（无滤镜，GPU 可直接合成，缩放流畅）；做旧交给下方的低层 pane。 */}
       <TileLayer
-        className="vintage-tiles"
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         attribution='&copy; OpenStreetMap &copy; CARTO'
         subdomains="abcd"
         maxZoom={19}
       />
+      <VintagePanes />
 
       {/* 路线：先画每条的"纸底描边"，再画彩色虚线 */}
       {routes.map((d) => {
