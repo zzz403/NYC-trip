@@ -48,16 +48,27 @@ export default function App() {
 
       {/* 报头 */}
       <header className="masthead">
-        <div className="masthead__stamp">EST. 2026</div>
-        <p className="masthead__kicker">A Three-Day Field Guide to</p>
-        <h1 className="masthead__title">New York City</h1>
-        <p className="masthead__sub">纽约曼哈顿 · 三天两晚 · 2026.08.01 – 08.03</p>
+        <div className="masthead__top">
+          <p className="masthead__kicker">A Three-Day Field Guide to</p>
+          <div className="masthead__stamp">EST<br />2026</div>
+        </div>
+        <h1 className="masthead__title">
+          <span>New York</span>
+          <span>City</span>
+        </h1>
+        <div className="masthead__meta">
+          <span className="masthead__sub">纽约曼哈顿 · 三天两晚</span>
+          <span className="masthead__dates">2026.08.01 – 08.03</span>
+        </div>
         <div className="masthead__rule" />
-        <p className="masthead__hotel">
+        <div className="masthead__hotel">
           <span className="masthead__star">★</span>
-          {HOTEL.nameEn}
-          <span className="masthead__hotel-zh"> · {HOTEL.nameZh}</span>
-        </p>
+          <div className="masthead__hotel-text">
+            <span className="masthead__hotel-label">Base Camp · 大本营</span>
+            <span className="masthead__hotel-en">{HOTEL.nameEn}</span>
+            <span className="masthead__hotel-zh">{HOTEL.nameZh}</span>
+          </div>
+        </div>
       </header>
 
       {/* 按天筛选 */}
@@ -67,7 +78,10 @@ export default function App() {
           onClick={() => pickDay(null)}
         >
           <span className="chip__dot chip__dot--all" />
-          全程 · All
+          <span className="chip__text">
+            <span className="chip__label">全程</span>
+            <span className="chip__zone">All Days</span>
+          </span>
         </button>
         {DAYS.map((d) => (
           <button
@@ -77,15 +91,21 @@ export default function App() {
             onClick={() => pickDay(activeDay === d.id ? null : d.id)}
           >
             <span className="chip__dot" />
-            <span className="chip__label">{d.label}</span>
-            <span className="chip__zone">{d.zone}</span>
+            <span className="chip__text">
+              <span className="chip__label">{d.label}</span>
+              <span className="chip__zone">{d.zone}</span>
+            </span>
           </button>
         ))}
         <button
           className={`chip chip--book ${showBooking ? 'is-on' : ''}`}
           onClick={() => setShowBooking((v) => !v)}
         >
-          ✦ 预约清单
+          <span className="chip__dot chip__dot--book">✦</span>
+          <span className="chip__text">
+            <span className="chip__label">预约清单</span>
+            <span className="chip__zone">Reservations</span>
+          </span>
         </button>
       </nav>
 

@@ -186,139 +186,207 @@ button { font-family: inherit; cursor: pointer; }
    ============================================================ */
 .masthead {
   position: absolute;
-  top: 18px;
-  left: 18px;
+  top: 20px;
+  left: 20px;
   z-index: 600;
-  width: min(340px, 74vw);
-  padding: 20px 22px 18px;
+  width: min(392px, 78vw);
+  padding: 24px 28px 22px;
   background: linear-gradient(180deg, var(--paper-lift), var(--paper));
   border: 1px solid var(--line);
-  border-radius: 3px;
-  box-shadow: 0 12px 30px -14px rgba(43, 33, 23, 0.5), 0 2px 0 rgba(255, 255, 255, 0.5) inset;
+  border-radius: 4px;
+  box-shadow: 0 16px 38px -16px rgba(43, 33, 23, 0.55), 0 2px 0 rgba(255, 255, 255, 0.5) inset;
   transform: rotate(-0.6deg);
 }
 .masthead::before {
   content: '';
   position: absolute;
-  inset: 5px;
+  inset: 6px;
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: 3px;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.55;
 }
-.masthead__stamp {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  color: var(--stamp-red);
-  border: 1.5px solid var(--stamp-red);
-  padding: 3px 6px;
-  border-radius: 2px;
-  transform: rotate(6deg);
-  opacity: 0.85;
+.masthead__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 .masthead__kicker {
-  margin: 0;
+  margin: 4px 0 0;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
+.masthead__stamp {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 9px;
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: 0.14em;
+  color: var(--stamp-red);
+  border: 1.5px solid var(--stamp-red);
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(7deg);
+  opacity: 0.82;
+}
 .masthead__title {
-  margin: 2px 0 4px;
+  display: flex;
+  flex-direction: column;
+  margin: 6px 0 8px;
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: clamp(30px, 6vw, 44px);
-  line-height: 0.92;
-  letter-spacing: -0.01em;
+  font-size: clamp(40px, 8vw, 58px);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
   font-style: italic;
 }
+.masthead__meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
 .masthead__sub {
-  margin: 0;
+  font-family: var(--font-zh);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+}
+.masthead__dates {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.02em;
   color: var(--ink-soft);
 }
 .masthead__rule {
   height: 2px;
-  margin: 12px 0 10px;
-  background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 13px);
-  opacity: 0.35;
+  margin: 15px 0 13px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 9px, transparent 9px 15px);
+  opacity: 0.32;
 }
 .masthead__hotel {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
 }
-.masthead__star { color: var(--gold); margin-right: 6px; }
-.masthead__hotel-zh { color: var(--ink-soft); font-family: var(--font-zh); font-weight: 500; font-size: 12px; }
+.masthead__star {
+  flex: none;
+  color: var(--gold);
+  font-size: 20px;
+  line-height: 1;
+  margin-top: 2px;
+}
+.masthead__hotel-text { display: flex; flex-direction: column; min-width: 0; }
+.masthead__hotel-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+.masthead__hotel-en {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.masthead__hotel-zh {
+  font-family: var(--font-zh);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
 
 /* ============================================================
    按天筛选 chips
    ============================================================ */
 .dayfilter {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 20px;
+  right: 20px;
   z-index: 600;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
+  gap: 9px;
+  width: 216px;
 }
 .chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 14px;
-  background: var(--paper-lift);
+  gap: 12px;
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  background: linear-gradient(180deg, var(--paper-lift), var(--paper));
   border: 1.5px solid var(--line);
-  border-radius: 2px;
+  border-radius: 3px;
   color: var(--ink);
-  box-shadow: 0 6px 16px -10px rgba(43, 33, 23, 0.6);
-  transition: all 0.18s ease;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.03em;
+  text-align: left;
+  box-shadow: 0 8px 18px -12px rgba(43, 33, 23, 0.6);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
-.chip:hover { transform: translateX(-3px); }
+.chip:hover { transform: translateY(-2px); box-shadow: 0 12px 22px -12px rgba(43, 33, 23, 0.6); }
 .chip__dot {
-  width: 11px;
-  height: 11px;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   background: var(--c, var(--ink));
-  border: 1.5px solid var(--paper-lift);
-  box-shadow: 0 0 0 1.5px var(--c, var(--ink));
-  flex: none;
+  box-shadow: 0 0 0 2px var(--paper-lift), 0 0 0 3.5px var(--c, var(--ink));
+  color: #fff8ea;
+  font-size: 11px;
 }
 .chip__dot--all {
   background: conic-gradient(#c25a34 0 33%, #2e6e85 33% 66%, #5e7a38 66%);
-  box-shadow: 0 0 0 1.5px var(--gold);
+  box-shadow: 0 0 0 2px var(--paper-lift), 0 0 0 3.5px var(--gold);
 }
-.chip__label { font-weight: 700; }
-.chip__zone { color: var(--ink-soft); font-family: var(--font-zh); }
+.chip__dot--book { background: var(--stamp-red); box-shadow: 0 0 0 2px var(--paper-lift), 0 0 0 3.5px var(--stamp-red); }
+.chip__text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.chip__label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.chip__zone {
+  font-family: var(--font-zh);
+  font-size: 11px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .chip.is-on {
   background: var(--c, var(--ink));
   color: var(--paper-lift);
-  border-color: var(--ink, var(--gold));
-  transform: translateX(-3px);
+  border-color: var(--ink);
 }
-.chip.is-on .chip__zone { color: rgba(255, 248, 234, 0.8); }
-.chip.is-on .chip__dot { background: var(--paper-lift); }
+.chip.is-on .chip__zone { color: rgba(255, 248, 234, 0.82); }
+.chip.is-on .chip__dot { background: var(--paper-lift); color: var(--c, var(--ink)); }
 .chip--all.is-on { background: var(--ink); border-color: var(--gold); }
-.chip--book {
-  margin-top: 4px;
-  color: var(--stamp-red);
-  border-color: var(--stamp-red);
-  border-style: dashed;
-}
-.chip--book.is-on { background: var(--stamp-red); color: var(--paper-lift); }
+.chip--all.is-on .chip__dot { box-shadow: 0 0 0 2px var(--ink), 0 0 0 3.5px var(--gold); }
+.chip--book { border-style: dashed; border-color: var(--stamp-red); }
+.chip--book .chip__label { color: var(--stamp-red); }
+.chip--book.is-on { background: var(--stamp-red); border-color: var(--stamp-red); }
+.chip--book.is-on .chip__label { color: var(--paper-lift); }
+.chip--book.is-on .chip__dot { background: var(--paper-lift); color: var(--stamp-red); box-shadow: 0 0 0 2px var(--stamp-red), 0 0 0 3.5px var(--paper-lift); }
 
 /* ============================================================
    详情卡片 detail
@@ -670,12 +738,16 @@ button { font-family: inherit; cursor: pointer; }
    响应式
    ============================================================ */
 @media (max-width: 720px) {
-  .masthead { width: min(280px, 66vw); padding: 14px 16px 13px; top: 12px; left: 12px; }
-  .masthead__title { font-size: clamp(26px, 8vw, 34px); }
-  .masthead__rule { margin: 8px 0 7px; }
-  .dayfilter { top: 12px; right: 12px; gap: 6px; }
-  .chip { padding: 7px 10px; font-size: 10px; }
-  .chip__zone { display: none; }
+  .masthead { width: min(232px, 60vw); padding: 15px 17px 14px; top: 12px; left: 12px; }
+  .masthead__title { font-size: clamp(30px, 11vw, 40px); }
+  .masthead__stamp { width: 38px; height: 38px; font-size: 8px; }
+  .masthead__rule { margin: 10px 0 9px; }
+  .masthead__hotel-en { font-size: 13.5px; }
+  .dayfilter { top: 12px; right: 12px; gap: 7px; width: 150px; }
+  .chip { height: 44px; padding: 0 11px; gap: 9px; }
+  .chip__dot { width: 16px; height: 16px; }
+  .chip__label { font-size: 11.5px; }
+  .chip__zone { font-size: 9.5px; }
   .detail { bottom: 236px; right: 12px; left: 12px; width: auto; }
   .booking { top: auto; bottom: 236px; right: 12px; left: 12px; width: auto; max-height: 46vh; }
   .filmstrip { padding-top: 20px; }
