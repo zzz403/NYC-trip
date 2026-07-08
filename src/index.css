@@ -71,13 +71,8 @@ button { font-family: inherit; cursor: pointer; }
   z-index: 1;
 }
 
-/* 轻做旧滤镜：只作用在瓦片图层上（marker/路线在各自的图层，不受影响，因此图钉保持鲜亮）。
-   偏亮的 brightness + 温和 sepia，避免地图发暗；will-change 把该层常驻为 GPU 合成层，
-   缩放时缩放的是已缓存纹理，不会逐帧重算滤镜，因而流畅。 */
-.vintage-tiles {
-  filter: sepia(0.32) saturate(0.86) brightness(1.08) contrast(0.94) hue-rotate(-6deg);
-  will-change: transform;
-}
+/* 做旧质感通过地图内部的低层 pane 实现（见 MapView 的 VintagePanes）：
+   叠层压在瓦片之上、路线与图钉之下，因此只做旧瓦片，图钉与路线保持鲜亮。 */
 
 .leaflet-container { font-family: var(--font-mono); }
 .leaflet-control-attribution {
