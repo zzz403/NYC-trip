@@ -1,0 +1,686 @@
+/* ============================================================
+   NYC · 三日行程手绘地图 — 复古旅行手账风
+   ============================================================ */
+
+:root {
+  --paper: #eee2c6;
+  --paper-2: #e6d8b5;
+  --paper-lift: #f6eed6;
+  --ink: #2b2117;
+  --ink-soft: #6b5a44;
+  --line: #cbb992;
+  --gold: #b7862f;
+  --stamp-red: #a8341f;
+
+  --font-display: 'Fraunces', 'Noto Serif SC', serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --font-zh: 'Noto Serif SC', 'Fraunces', serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-zh);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- 舞台 & 纸张肌理 ---------- */
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.paper-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+/* 四角暗角，像老地图边缘 */
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 490;
+  pointer-events: none;
+  box-shadow: inset 0 0 180px 40px rgba(60, 40, 15, 0.28);
+}
+
+/* ---------- 地图 ---------- */
+.leaflet-canvas {
+  position: absolute !important;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  background: var(--paper-2) !important;
+  z-index: 1;
+}
+
+/* 做旧滤镜：把现代矢量瓦片压成泛黄旧纸 */
+.vintage-tiles {
+  filter: sepia(0.5) saturate(0.72) brightness(1.03) contrast(0.92) hue-rotate(-8deg);
+}
+.vintage-labels {
+  filter: sepia(0.28) saturate(0.85) contrast(1.05) brightness(0.92);
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+
+.leaflet-container { font-family: var(--font-mono); }
+.leaflet-control-attribution {
+  background: rgba(246, 238, 214, 0.72) !important;
+  color: var(--ink-soft) !important;
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+.leaflet-control-attribution a { color: var(--gold) !important; }
+
+/* ---------- 图钉 ---------- */
+.pin-wrap { background: none; border: none; }
+
+.pin {
+  position: relative;
+  width: 40px;
+  height: 50px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.pin-body {
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 30px;
+  height: 30px;
+  background: var(--pin);
+  border: 2px solid var(--paper-lift);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 2px 3px 0 rgba(43, 33, 23, 0.28);
+}
+.pin-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(45deg);
+  color: #fff8ea;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+.pin-stamp {
+  position: absolute;
+  top: -3px;
+  right: 1px;
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stamp-red);
+  color: var(--paper-lift);
+  border: 1.5px solid var(--paper-lift);
+  border-radius: 50%;
+  font-size: 9px;
+  box-shadow: 1px 1px 0 rgba(43, 33, 23, 0.3);
+}
+.pin-stamp--soft { background: var(--gold); }
+
+.pin--active { transform: scale(1.32); z-index: 10; }
+.pin--active .pin-body {
+  box-shadow: 0 0 0 4px rgba(183, 134, 47, 0.4), 2px 3px 0 rgba(43, 33, 23, 0.3);
+}
+.pin--dim { filter: grayscale(0.7) opacity(0.55); }
+
+/* 酒店星标 */
+.hotel-pin {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hotel-star {
+  position: relative;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff8ea;
+  font-size: 17px;
+  background: radial-gradient(circle at 35% 30%, #d7a338, var(--gold));
+  border: 2px solid var(--paper-lift);
+  border-radius: 50%;
+  box-shadow: 2px 3px 0 rgba(43, 33, 23, 0.3);
+}
+.hotel-ring {
+  position: absolute;
+  inset: 6px;
+  border: 2px dashed rgba(183, 134, 47, 0.75);
+  border-radius: 50%;
+  animation: spin 22s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   报头 masthead
+   ============================================================ */
+.masthead {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 600;
+  width: min(340px, 74vw);
+  padding: 20px 22px 18px;
+  background: linear-gradient(180deg, var(--paper-lift), var(--paper));
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: 0 12px 30px -14px rgba(43, 33, 23, 0.5), 0 2px 0 rgba(255, 255, 255, 0.5) inset;
+  transform: rotate(-0.6deg);
+}
+.masthead::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.masthead__stamp {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--stamp-red);
+  border: 1.5px solid var(--stamp-red);
+  padding: 3px 6px;
+  border-radius: 2px;
+  transform: rotate(6deg);
+  opacity: 0.85;
+}
+.masthead__kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.masthead__title {
+  margin: 2px 0 4px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(30px, 6vw, 44px);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  font-style: italic;
+}
+.masthead__sub {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+.masthead__rule {
+  height: 2px;
+  margin: 12px 0 10px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 13px);
+  opacity: 0.35;
+}
+.masthead__hotel {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+}
+.masthead__star { color: var(--gold); margin-right: 6px; }
+.masthead__hotel-zh { color: var(--ink-soft); font-family: var(--font-zh); font-weight: 500; font-size: 12px; }
+
+/* ============================================================
+   按天筛选 chips
+   ============================================================ */
+.dayfilter {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  background: var(--paper-lift);
+  border: 1.5px solid var(--line);
+  border-radius: 2px;
+  color: var(--ink);
+  box-shadow: 0 6px 16px -10px rgba(43, 33, 23, 0.6);
+  transition: all 0.18s ease;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+.chip:hover { transform: translateX(-3px); }
+.chip__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--c, var(--ink));
+  border: 1.5px solid var(--paper-lift);
+  box-shadow: 0 0 0 1.5px var(--c, var(--ink));
+  flex: none;
+}
+.chip__dot--all {
+  background: conic-gradient(#c25a34 0 33%, #2e6e85 33% 66%, #5e7a38 66%);
+  box-shadow: 0 0 0 1.5px var(--gold);
+}
+.chip__label { font-weight: 700; }
+.chip__zone { color: var(--ink-soft); font-family: var(--font-zh); }
+.chip.is-on {
+  background: var(--c, var(--ink));
+  color: var(--paper-lift);
+  border-color: var(--ink, var(--gold));
+  transform: translateX(-3px);
+}
+.chip.is-on .chip__zone { color: rgba(255, 248, 234, 0.8); }
+.chip.is-on .chip__dot { background: var(--paper-lift); }
+.chip--all.is-on { background: var(--ink); border-color: var(--gold); }
+.chip--book {
+  margin-top: 4px;
+  color: var(--stamp-red);
+  border-color: var(--stamp-red);
+  border-style: dashed;
+}
+.chip--book.is-on { background: var(--stamp-red); color: var(--paper-lift); }
+
+/* ============================================================
+   详情卡片 detail
+   ============================================================ */
+.detail {
+  position: absolute;
+  z-index: 620;
+  right: 18px;
+  bottom: 218px;
+  width: min(340px, 82vw);
+  padding: 20px 22px 22px;
+  background: linear-gradient(175deg, var(--paper-lift), var(--paper));
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--c, var(--gold));
+  border-radius: 3px;
+  box-shadow: 0 20px 40px -18px rgba(43, 33, 23, 0.6);
+}
+.detail::before {
+  content: '';
+  position: absolute;
+  inset: 4px 4px 4px 0;
+  border: 1px solid var(--line);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.detail__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 50%;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1;
+}
+.detail__close:hover { background: var(--ink); color: var(--paper-lift); }
+.detail__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.detail__idx {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c, var(--gold));
+  color: #fff8ea;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 rgba(43, 33, 23, 0.25);
+}
+.detail__idx--star { background: var(--gold); font-size: 18px; }
+.detail__head > div { display: flex; flex-direction: column; }
+.detail__day {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.detail__time {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 21px;
+  font-style: italic;
+}
+.detail__kind { margin-left: auto; font-size: 22px; }
+.detail__name {
+  margin: 4px 0 2px;
+  font-family: var(--font-zh);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.detail__en {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.detail__badge {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 4px 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #fff8ea;
+  background: var(--tone);
+  border-radius: 2px;
+  box-shadow: 1.5px 1.5px 0 rgba(43, 33, 23, 0.25);
+  transform: rotate(-1.5deg);
+}
+.detail__note {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* ============================================================
+   预约清单抽屉 booking
+   ============================================================ */
+.booking {
+  position: absolute;
+  z-index: 630;
+  top: 130px;
+  right: 18px;
+  width: min(360px, 86vw);
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  padding: 20px 22px 22px;
+  background: linear-gradient(175deg, var(--paper-lift), var(--paper));
+  border: 1px solid var(--line);
+  border-top: 5px solid var(--stamp-red);
+  border-radius: 3px;
+  box-shadow: 0 22px 44px -18px rgba(43, 33, 23, 0.65);
+}
+.booking__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 20px;
+  color: var(--stamp-red);
+}
+.booking__sub {
+  margin: 2px 0 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.booking__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.booking__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--c);
+  border-radius: 2px;
+}
+.booking__num {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c);
+  color: #fff8ea;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  border-radius: 50%;
+}
+.booking__t { margin: 0; font-weight: 700; font-size: 13.5px; line-height: 1.35; }
+.booking__d { margin: 3px 0 0; font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
+.booking__day {
+  margin-left: auto;
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--c);
+  border: 1px solid var(--c);
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   底部横向站点卡片 filmstrip
+   ============================================================ */
+.filmstrip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 610;
+  padding: 12px 0 14px;
+  background: linear-gradient(0deg, rgba(238, 226, 198, 0.98) 62%, rgba(238, 226, 198, 0));
+}
+.filmstrip__track {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  padding: 0 18px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.filmstrip__track::-webkit-scrollbar { height: 6px; }
+.filmstrip__track::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+.filmstrip__group {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  padding-right: 12px;
+  border-right: 2px dashed var(--line);
+}
+.filmstrip__group:last-child { border-right: none; }
+
+.filmstrip__tab {
+  flex: none;
+  width: 108px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 2px;
+  scroll-snap-align: start;
+}
+.filmstrip__tab-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 2px var(--paper-lift), 0 0 0 3.5px var(--c);
+}
+.filmstrip__tab-day {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: 20px;
+  color: var(--ink);
+}
+.filmstrip__tab-zone {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
+.ticket {
+  flex: none;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 11px;
+  background: repeating-linear-gradient(-45deg, var(--paper-lift) 0 7px, var(--paper) 7px 14px);
+  border: 1px dashed var(--ink-soft);
+  border-radius: 3px;
+  scroll-snap-align: start;
+}
+.ticket__dir {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.ticket__txt { font-size: 10.5px; line-height: 1.4; color: var(--ink-soft); }
+
+.stopcard {
+  position: relative;
+  flex: none;
+  width: 158px;
+  text-align: left;
+  padding: 10px 12px 12px;
+  background: linear-gradient(170deg, var(--paper-lift), var(--paper));
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--c);
+  border-radius: 3px;
+  box-shadow: 0 8px 18px -12px rgba(43, 33, 23, 0.6);
+  scroll-snap-align: start;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.stopcard:hover { transform: translateY(-4px); box-shadow: 0 14px 24px -12px rgba(43, 33, 23, 0.6); }
+.stopcard--must { border-style: solid; }
+.stopcard--must::after {
+  content: '✦';
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  color: var(--stamp-red);
+  font-size: 11px;
+}
+.stopcard.is-sel {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+  transform: translateY(-4px);
+}
+.stopcard__top { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.stopcard__num {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c);
+  color: #fff8ea;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 10px;
+  border-radius: 50%;
+}
+.stopcard__time {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 15px;
+}
+.stopcard__kind { margin-left: auto; font-size: 14px; }
+.stopcard__zh {
+  margin: 0;
+  font-family: var(--font-zh);
+  font-weight: 700;
+  font-size: 13.5px;
+  line-height: 1.3;
+}
+.stopcard__en {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stopcard__tag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #fff8ea;
+  background: var(--tone);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width: 720px) {
+  .masthead { width: min(280px, 66vw); padding: 14px 16px 13px; top: 12px; left: 12px; }
+  .masthead__title { font-size: clamp(26px, 8vw, 34px); }
+  .masthead__rule { margin: 8px 0 7px; }
+  .dayfilter { top: 12px; right: 12px; gap: 6px; }
+  .chip { padding: 7px 10px; font-size: 10px; }
+  .chip__zone { display: none; }
+  .detail { bottom: 236px; right: 12px; left: 12px; width: auto; }
+  .booking { top: auto; bottom: 236px; right: 12px; left: 12px; width: auto; max-height: 46vh; }
+  .filmstrip { padding-top: 20px; }
+}
+
+@media (max-width: 720px) and (max-height: 620px) {
+  .masthead { display: none; }
+}
