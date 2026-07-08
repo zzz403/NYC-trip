@@ -71,14 +71,35 @@ button { font-family: inherit; cursor: pointer; }
   z-index: 1;
 }
 
-/* 做旧滤镜：把现代矢量瓦片压成泛黄旧纸 */
-.vintage-tiles {
-  filter: sepia(0.5) saturate(0.72) brightness(1.03) contrast(0.92) hue-rotate(-8deg);
+/* 做旧质感 = 两层静态叠层，覆盖在地图之上但不随地图缩放做 transform，
+   因此瓦片始终是可被 GPU 直接合成的普通图片，缩放丝滑不卡顿。 */
+.map-desat {
+  position: absolute;
+  inset: 0;
+  z-index: 400;
+  pointer-events: none;
+  background: #8f8f8f;
+  mix-blend-mode: saturation; /* 用灰色降低地图饱和度，得到旧地图的褪色感 */
+  opacity: 0.3;
 }
-.vintage-labels {
-  filter: sepia(0.28) saturate(0.85) contrast(1.05) brightness(0.92);
-  mix-blend-mode: multiply;
-  opacity: 0.85;
+.map-vintage {
+  position: absolute;
+  inset: 0;
+  z-index: 401;
+  pointer-events: none;
+  mix-blend-mode: multiply; /* 暖色相乘，压成泛黄旧纸 */
+  background:
+    radial-gradient(135% 125% at 50% 40%, rgba(233, 205, 150, 0) 42%, rgba(150, 104, 52, 0.34) 100%),
+    linear-gradient(180deg, rgba(226, 190, 120, 0.78), rgba(214, 172, 96, 0.82));
+}
+/* 再叠一层暖色屏幕光，把整体拉回旧地图的泛黄暖调 */
+.map-warm {
+  position: absolute;
+  inset: 0;
+  z-index: 402;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(180deg, rgba(255, 226, 165, 0.55), rgba(236, 198, 140, 0.4));
 }
 
 .leaflet-container { font-family: var(--font-mono); }

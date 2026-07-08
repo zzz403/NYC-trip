@@ -27,7 +27,8 @@ export const DAYS = [
       { id: 'd1-lunch', time: '13:30', nameZh: '熊猫快餐 午餐', nameEn: 'Panda Express', coord: [40.7519, -73.9884], note: '先到酒店寄存行李，就近解决午饭，不用挑时间', reservation: null, kind: 'food' },
       { id: 'd1-esb', time: '14:30', nameZh: '帝国大厦', nameEn: 'Empire State Building', coord: [40.7484, -73.9857], note: '走路5分钟，86层观景台。选 14:30 左右场次', reservation: 'required', kind: 'sight' },
       { id: 'd1-nypl', time: '16:00', nameZh: '纽约公共图书馆 + 布莱恩特公园', nameEn: 'NY Public Library + Bryant Park', coord: [40.7532, -73.9823], note: '免费参观，门口狮子雕像打卡', reservation: 'free', kind: 'sight' },
-      { id: 'd1-times', time: '17:00', nameZh: '时代广场', nameEn: 'Times Square', coord: [40.7580, -73.9855], note: '逛街 + 晚饭，霓虹灯核心区', reservation: null, kind: 'sight' },
+      { id: 'd1-un', time: '16:45', nameZh: '联合国总部', nameEn: 'United Nations Headquarters', coord: [40.7490, -73.9680], note: '405 E 42nd St · 从图书馆往东，适合外观打卡；若想进楼参加 guided tour 需提前看官网时段', reservation: 'optional', kind: 'sight' },
+      { id: 'd1-times', time: '18:00', nameZh: '时代广场', nameEn: 'Times Square', coord: [40.7580, -73.9855], note: '逛街 + 晚饭，霓虹灯核心区', reservation: null, kind: 'sight' },
       { id: 'd1-caroline', time: '20:00', nameZh: "Caroline's 喜剧俱乐部", nameEn: "Caroline's on Broadway", coord: [40.7610, -73.9840], note: '1626 Broadway · 20:00 或 21:30 场，走路可达。周末易满', reservation: 'required', kind: 'night' },
     ],
   },
@@ -38,14 +39,13 @@ export const DAYS = [
     date: '8月2日 周日',
     color: '#2E6E85', // 褪色青 faded teal
     ink: '#1E4E5E',
-    dateNote: '全天下城，海港+纪念馆+爵士夜',
+    dateNote: '全天下城，纪念馆+华尔街+免费渡轮+爵士夜',
     flight: null,
     stops: [
-      { id: 'd2-ferry', time: '09:00', nameZh: '自由女神官方渡轮码头', nameEn: 'Statue City Cruises · Battery Park', coord: [40.7019, -74.0165], note: '09:00 出发，官方渡轮登船口', reservation: 'required', kind: 'transit' },
-      { id: 'd2-liberty', time: '09:30', nameZh: '自由女神像（底座票）', nameEn: 'Statue of Liberty · Pedestal', coord: [40.6892, -74.0445], note: '跳过埃利斯岛省 1.5–2h；皇冠票已售罄，底座票只比普通贵 $1.2，性价比最高', reservation: 'required', kind: 'sight' },
       { id: 'd2-911', time: '13:30', nameZh: '9/11 纪念馆 + 博物馆', nameEn: '9/11 Memorial & Museum', coord: [40.7116, -74.0133], note: '180 Greenwich St · 户外纪念广场免费，室内博物馆必须提前订时段票', reservation: 'required', kind: 'sight' },
       { id: 'd2-bull', time: '15:00', nameZh: '华尔街 · 铜牛', nameEn: 'Charging Bull', coord: [40.7056, -74.0134], note: '顺路拍照；证交所内部不对公众开放，只能外面拍', reservation: 'free', kind: 'sight' },
       { id: 'd2-siferry', time: '16:00', nameZh: '史泰登岛免费渡轮', nameEn: 'Staten Island Ferry', coord: [40.7011, -74.0131], note: 'Whitehall Terminal · 免费看日落，自由女神远景 + 曼哈顿天际线，随到随上', reservation: 'free', kind: 'transit' },
+      { id: 'd2-sams', time: '17:45', nameZh: "Sam's Fried Ice Cream", nameEn: "Sam's Fried Ice Cream", coord: [40.7159, -73.9914], note: '37 Orchard St · 渡轮回来后坐地铁去 Lower East Side/Chinatown 一带，吃完再去西村听 jazz', reservation: null, kind: 'food' },
       { id: 'd2-vanguard', time: '20:00', nameZh: 'Village Vanguard 爵士俱乐部', nameEn: 'Village Vanguard', coord: [40.7360, -74.0017], note: '178 7th Ave S · 1935年开业老牌。备选 Blue Note / Smalls，看阵容再订', reservation: 'required', kind: 'night' },
     ],
   },
@@ -79,7 +79,6 @@ export const RESERVATION_META = {
 
 // 需提前预约清单（按紧急程度）
 export const BOOKING_LIST = [
-  { t: '自由女神像渡轮（Pedestal Reserve）', d: '皇冠票已售罄，底座票也尽快订', day: 2 },
   { t: '帝国大厦时段票', d: '选 14:30 左右场次', day: 1 },
   { t: '9/11 纪念馆博物馆（室内）', d: '户外免费，室内必须提前订', day: 2 },
   { t: "Caroline's on Broadway", d: '周末场次容易订满', day: 1 },

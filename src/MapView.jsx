@@ -54,20 +54,15 @@ export default function MapView({ visibleDays, activeDay, selectedId, onSelect }
       zoom={13}
       zoomControl={false}
       scrollWheelZoom
-      fadeAnimation={false}
+      zoomSnap={0}
+      zoomDelta={0.5}
+      wheelPxPerZoomLevel={140}
       className="leaflet-canvas"
     >
+      {/* 单层瓦片，做旧质感交给上方的静态叠层处理，避免瓦片带滤镜导致缩放时逐帧重绘 */}
       <TileLayer
-        className="vintage-tiles"
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         attribution='&copy; OpenStreetMap &copy; CARTO'
-        subdomains="abcd"
-        maxZoom={19}
-      />
-      {/* 单独一层带地名的标注，压在做旧滤镜之上，保持可读 */}
-      <TileLayer
-        className="vintage-labels"
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
         subdomains="abcd"
         maxZoom={19}
       />
