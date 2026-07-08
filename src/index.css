@@ -48,7 +48,7 @@ button { font-family: inherit; cursor: pointer; }
   inset: 0;
   z-index: 500;
   mix-blend-mode: multiply;
-  opacity: 0.5;
+  opacity: 0.38;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
 }
 /* 四角暗角，像老地图边缘 */
@@ -71,35 +71,12 @@ button { font-family: inherit; cursor: pointer; }
   z-index: 1;
 }
 
-/* 做旧质感 = 两层静态叠层，覆盖在地图之上但不随地图缩放做 transform，
-   因此瓦片始终是可被 GPU 直接合成的普通图片，缩放丝滑不卡顿。 */
-.map-desat {
-  position: absolute;
-  inset: 0;
-  z-index: 400;
-  pointer-events: none;
-  background: #8f8f8f;
-  mix-blend-mode: saturation; /* 用灰色降低地图饱和度，得到旧地图的褪色感 */
-  opacity: 0.3;
-}
-.map-vintage {
-  position: absolute;
-  inset: 0;
-  z-index: 401;
-  pointer-events: none;
-  mix-blend-mode: multiply; /* 暖色相乘，压成泛黄旧纸 */
-  background:
-    radial-gradient(135% 125% at 50% 40%, rgba(233, 205, 150, 0) 42%, rgba(150, 104, 52, 0.34) 100%),
-    linear-gradient(180deg, rgba(226, 190, 120, 0.78), rgba(214, 172, 96, 0.82));
-}
-/* 再叠一层暖色屏幕光，把整体拉回旧地图的泛黄暖调 */
-.map-warm {
-  position: absolute;
-  inset: 0;
-  z-index: 402;
-  pointer-events: none;
-  mix-blend-mode: soft-light;
-  background: linear-gradient(180deg, rgba(255, 226, 165, 0.55), rgba(236, 198, 140, 0.4));
+/* 轻做旧滤镜：只作用在瓦片图层上（marker/路线在各自的图层，不受影响，因此图钉保持鲜亮）。
+   偏亮的 brightness + 温和 sepia，避免地图发暗；will-change 把该层常驻为 GPU 合成层，
+   缩放时缩放的是已缓存纹理，不会逐帧重算滤镜，因而流畅。 */
+.vintage-tiles {
+  filter: sepia(0.32) saturate(0.86) brightness(1.08) contrast(0.94) hue-rotate(-6deg);
+  will-change: transform;
 }
 
 .leaflet-container { font-family: var(--font-mono); }

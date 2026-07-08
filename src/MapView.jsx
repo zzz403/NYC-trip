@@ -54,13 +54,12 @@ export default function MapView({ visibleDays, activeDay, selectedId, onSelect }
       zoom={13}
       zoomControl={false}
       scrollWheelZoom
-      zoomSnap={0}
-      zoomDelta={0.5}
-      wheelPxPerZoomLevel={140}
       className="leaflet-canvas"
     >
-      {/* 单层瓦片，做旧质感交给上方的静态叠层处理，避免瓦片带滤镜导致缩放时逐帧重绘 */}
+      {/* 单层瓦片，只给瓦片本身上一层"轻做旧"滤镜（不影响 marker 图层，所以图钉依旧鲜亮）。
+          用 will-change 把该层提升为 GPU 合成层，缩放时缩放的是已缓存的纹理而非逐帧重算滤镜，因此流畅。 */}
       <TileLayer
+        className="vintage-tiles"
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         attribution='&copy; OpenStreetMap &copy; CARTO'
         subdomains="abcd"

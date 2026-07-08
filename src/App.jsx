@@ -44,10 +44,6 @@ export default function App() {
         selectedId={selectedId}
         onSelect={setSelectedId}
       />
-      {/* 做旧叠层：静态覆盖在地图之上，不随缩放变换，因此不拖累缩放流畅度 */}
-      <div className="map-desat" aria-hidden />
-      <div className="map-vintage" aria-hidden />
-      <div className="map-warm" aria-hidden />
       <div className="paper-grain" aria-hidden />
 
       {/* 报头 */}
